@@ -4,6 +4,7 @@
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Combine%20RSS%20Feeds-blue?logo=github)](https://github.com/marketplace/actions/combine-rss-feeds)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kotaoue/combine-rss-feeds)](https://goreportcard.com/report/github.com/kotaoue/combine-rss-feeds)
 [![codecov](https://codecov.io/gh/kotaoue/combine-rss-feeds/branch/main/graph/badge.svg)](https://codecov.io/gh/kotaoue/combine-rss-feeds)
+[![License](https://img.shields.io/github/license/kotaoue/combine-rss-feeds)](https://github.com/kotaoue/combine-rss-feeds/blob/main/LICENSE)
 
 A GitHub Action that fetches entries from multiple RSS/Atom feeds and combines them into a single RSS 2.0 XML file, sorted by publication date (newest first).
 
@@ -34,7 +35,7 @@ A GitHub Action that fetches entries from multiple RSS/Atom feeds and combines t
 ## Inputs
 
 | Input | Required | Default | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `feeds` | ✅ | — | Newline-separated list of RSS/Atom feed URLs |
 | `output_file` | ❌ | `combined_feed.xml` | Path to the generated RSS file |
 | `limit` | ❌ | `10` | Max entries per feed source |
