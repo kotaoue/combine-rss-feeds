@@ -1,100 +1,17 @@
 package main
 
 import (
-	"context"
 	"encoding/xml"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
-	"time"
 
+	"github.com/kotaoue/combine-rss-feeds/internal/build"
+	"github.com/kotaoue/combine-rss-feeds/internal/fetch"
 	"github.com/kotaoue/combine-rss-feeds/internal/parse"
 )
-
-// RSS 2.0 output structures
-
-type RSSFeed struct {
-	XMLName xml.Name   `xml:"rss"`
-	Version string     `xml:"version,attr"`
-	Channel RSSChannel `xml:"channel"`
-}
-
-type RSSChannel struct {
-	Title       string    `xml:"title"`
-	Link        string    `xml:"link"`
-	Description string    `xml:"description"`
-	Items       []RSSItem `xml:"item"`
-}
-
-type RSSItem struct {
-	Title       string `xml:"title"`
-	Link        string `xml:"link"`
-	PubDate     string `xml:"pubDate"`
-	Description string `xml:"description"`
-}
-
-func fetchFeed(feedURL string, limit int) ([]parse.Item, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, feedURL, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request %s: %w", feedURL, err)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("fetch %s: %w", feedURL, err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read body %s: %w", feedURL, err)
-	}
-
-	items, err := parse.Feed(body, feedURL, limit)
-	if err != nil {
-		return nil, fmt.Errorf("parse %s: %w", feedURL, err)
-	}
-	return items, nil
-}
-
-func buildRSS(title, description string, items []parse.Item) RSSFeed {
-	rssItems := make([]RSSItem, 0, len(items))
-	for _, it := range items {
-		pubDate := ""
-		if !it.PubDate.IsZero() {
-			pubDate = it.PubDate.UTC().Format(time.RFC1123Z)
-		}
-		rssItems = append(rssItems, RSSItem{
-			Title:       it.Title,
-			Link:        it.Link,
-			PubDate:     pubDate,
-			Description: it.Description,
-		})
-	}
-	return RSSFeed{
-		Version: "2.0",
-		Channel: RSSChannel{
-			Title:       title,
-			Link:        "",
-			Description: description,
-			Items:       rssItems,
-		},
-	}
-}
-
-func sortItems(items []parse.Item) {
-	sort.Slice(items, func(i, j int) bool {
-		return items[i].PubDate.After(items[j].PubDate)
-	})
-}
 
 func main() {
 	feedsRaw := os.Getenv("INPUT_FEEDS")
@@ -135,7 +52,7 @@ func main() {
 
 	var allItems []parse.Item
 	for _, u := range feedURLs {
-		items, err := fetchFeed(u, limit)
+		items, err := fetch.Feed(u, limit)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: %v\n", err)
 			continue
@@ -143,10 +60,9 @@ func main() {
 		allItems = append(allItems, items...)
 	}
 
-	// Sort by pubDate descending
-	sortItems(allItems)
+	build.SortItems(allItems)
 
-	feed := buildRSS(feedTitle, feedDesc, allItems)
+	feed := build.RSS(feedTitle, feedDesc, allItems)
 
 	out, err := xml.MarshalIndent(feed, "", "  ")
 	if err != nil {
