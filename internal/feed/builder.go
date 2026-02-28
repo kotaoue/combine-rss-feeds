@@ -1,11 +1,9 @@
-package builder
+package feed
 
 import (
 	"encoding/xml"
 	"sort"
 	"time"
-
-	"github.com/kotaoue/combine-rss-feeds/internal/parser"
 )
 
 // RSS 2.0 output structures
@@ -31,7 +29,7 @@ type RSSItem struct {
 }
 
 // RSS builds an RSSFeed from parsed items using the given title and description.
-func RSS(title, description string, items []parser.Item) RSSFeed {
+func RSS(title, description string, items []Item) RSSFeed {
 	rssItems := make([]RSSItem, 0, len(items))
 	for _, it := range items {
 		pubDate := ""
@@ -57,7 +55,7 @@ func RSS(title, description string, items []parser.Item) RSSFeed {
 }
 
 // SortItems sorts items by PubDate descending (newest first).
-func SortItems(items []parser.Item) {
+func SortItems(items []Item) {
 	sort.Slice(items, func(i, j int) bool {
 		return items[i].PubDate.After(items[j].PubDate)
 	})

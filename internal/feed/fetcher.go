@@ -1,4 +1,4 @@
-package fetcher
+package feed
 
 import (
 	"context"
@@ -6,12 +6,10 @@ import (
 	"io"
 	"net/http"
 	"time"
-
-	"github.com/kotaoue/combine-rss-feeds/internal/parser"
 )
 
-// Feed fetches feedURL and returns up to limit parsed items.
-func Feed(feedURL string, limit int) ([]parser.Item, error) {
+// Fetch fetches feedURL and returns up to limit parsed items.
+func Fetch(feedURL string, limit int) ([]Item, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -31,7 +29,7 @@ func Feed(feedURL string, limit int) ([]parser.Item, error) {
 		return nil, fmt.Errorf("read body %s: %w", feedURL, err)
 	}
 
-	items, err := parser.Feed(body, feedURL, limit)
+	items, err := Parse(body, feedURL, limit)
 	if err != nil {
 		return nil, fmt.Errorf("parse %s: %w", feedURL, err)
 	}

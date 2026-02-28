@@ -1,4 +1,4 @@
-package parser
+package feed
 
 import (
 	"testing"
@@ -88,9 +88,9 @@ var sampleAtom = `<?xml version="1.0" encoding="UTF-8"?>
 </feed>`
 
 func TestFeedRSS(t *testing.T) {
-	items, err := Feed([]byte(sampleRSS), "https://example.com/feed", 10)
+	items, err := Parse([]byte(sampleRSS), "https://example.com/feed", 10)
 	if err != nil {
-		t.Fatalf("Feed RSS: %v", err)
+		t.Fatalf("Parse RSS: %v", err)
 	}
 	if len(items) != 3 {
 		t.Fatalf("expected 3 items, got %d", len(items))
@@ -104,9 +104,9 @@ func TestFeedRSS(t *testing.T) {
 }
 
 func TestFeedRSSLimit(t *testing.T) {
-	items, err := Feed([]byte(sampleRSS), "https://example.com/feed", 2)
+	items, err := Parse([]byte(sampleRSS), "https://example.com/feed", 2)
 	if err != nil {
-		t.Fatalf("Feed RSS limit: %v", err)
+		t.Fatalf("Parse RSS limit: %v", err)
 	}
 	if len(items) != 2 {
 		t.Fatalf("expected 2 items (limit), got %d", len(items))
@@ -114,9 +114,9 @@ func TestFeedRSSLimit(t *testing.T) {
 }
 
 func TestFeedAtom(t *testing.T) {
-	items, err := Feed([]byte(sampleAtom), "https://atom.example.com/feed", 10)
+	items, err := Parse([]byte(sampleAtom), "https://atom.example.com/feed", 10)
 	if err != nil {
-		t.Fatalf("Feed Atom: %v", err)
+		t.Fatalf("Parse Atom: %v", err)
 	}
 	if len(items) != 2 {
 		t.Fatalf("expected 2 items, got %d", len(items))

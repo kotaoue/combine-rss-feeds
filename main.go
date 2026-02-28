@@ -8,12 +8,17 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kotaoue/combine-rss-feeds/internal/builder"
-	"github.com/kotaoue/combine-rss-feeds/internal/fetcher"
-	"github.com/kotaoue/combine-rss-feeds/internal/parser"
+	"github.com/kotaoue/combine-rss-feeds/internal/feed"
 )
 
 func main() {
+	if err := Main(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func Main() error {
 	feedsRaw := os.Getenv("INPUT_FEEDS")
 	outputFile := os.Getenv("INPUT_OUTPUT_FILE")
 	limitStr := os.Getenv("INPUT_LIMIT")
@@ -46,13 +51,12 @@ func main() {
 	}
 
 	if len(feedURLs) == 0 {
-		fmt.Fprintln(os.Stderr, "No feed URLs provided in INPUT_FEEDS")
-		os.Exit(1)
+		return fmt.Errorf("no feed URLs provided in INPUT_FEEDS")
 	}
 
-	var allItems []parser.Item
+	var allItems []feed.Item
 	for _, u := range feedURLs {
-		items, err := fetcher.Feed(u, limit)
+		items, err := feed.Fetch(u, limit)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: %v\n", err)
 			continue
@@ -60,14 +64,13 @@ func main() {
 		allItems = append(allItems, items...)
 	}
 
-	builder.SortItems(allItems)
+	feed.SortItems(allItems)
 
-	feed := builder.RSS(feedTitle, feedDesc, allItems)
+	rssFeed := feed.RSS(feedTitle, feedDesc, allItems)
 
-	out, err := xml.MarshalIndent(feed, "", "  ")
+	out, err := xml.MarshalIndent(rssFeed, "", "  ")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to marshal XML: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("failed to marshal XML: %w", err)
 	}
 
 	content := xml.Header + string(out) + "\n"
@@ -76,16 +79,15 @@ func main() {
 	dir := filepath.Dir(outputFile)
 	if dir != "." {
 		if err := os.MkdirAll(dir, 0755); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to create directory %s: %v\n", dir, err)
-			os.Exit(1)
+			return fmt.Errorf("failed to create directory %s: %w", dir, err)
 		}
 	}
 
 	if err := os.WriteFile(outputFile, []byte(content), 0644); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to write %s: %v\n", outputFile, err)
-		os.Exit(1)
+		return fmt.Errorf("failed to write %s: %w", outputFile, err)
 	}
 
 	fmt.Printf("Written %d items to %s\n", len(allItems), outputFile)
+	return nil
 }
 
