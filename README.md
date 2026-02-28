@@ -1,5 +1,6 @@
 # combine-rss-feeds
 
+[![Go](https://github.com/kotaoue/combine-rss-feeds/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/kotaoue/combine-rss-feeds/actions/workflows/test.yml)
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Combine%20RSS%20Feeds-blue?logo=github)](https://github.com/marketplace/actions/combine-rss-feeds)
 
 A GitHub Action that fetches entries from multiple RSS/Atom feeds and combines them into a single RSS 2.0 XML file, sorted by publication date (newest first).
