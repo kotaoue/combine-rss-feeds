@@ -1,4 +1,4 @@
-package build
+package builder
 
 import (
 	"encoding/xml"
@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kotaoue/combine-rss-feeds/internal/parse"
+	"github.com/kotaoue/combine-rss-feeds/internal/parser"
 )
 
 func TestRSS(t *testing.T) {
-	items := []parse.Item{
+	items := []parser.Item{
 		{Title: "T1", Link: "https://a.com/1", PubDate: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), Description: "D1"},
 		{Title: "T2", Link: "https://a.com/2", PubDate: time.Time{}, Description: "D2"},
 	}
@@ -30,7 +30,7 @@ func TestRSS(t *testing.T) {
 }
 
 func TestRSSXMLMarshal(t *testing.T) {
-	items := []parse.Item{
+	items := []parser.Item{
 		{Title: "T1", Link: "https://a.com/1", PubDate: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), Description: "D1"},
 	}
 	feed := RSS("My Feed", "My Desc", items)
@@ -48,7 +48,7 @@ func TestRSSXMLMarshal(t *testing.T) {
 }
 
 func TestSortItems(t *testing.T) {
-	items := []parse.Item{
+	items := []parser.Item{
 		{Title: "Old", PubDate: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)},
 		{Title: "Newest", PubDate: time.Date(2024, 3, 1, 0, 0, 0, 0, time.UTC)},
 		{Title: "Middle", PubDate: time.Date(2024, 2, 1, 0, 0, 0, 0, time.UTC)},

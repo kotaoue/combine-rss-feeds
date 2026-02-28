@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kotaoue/combine-rss-feeds/internal/build"
-	"github.com/kotaoue/combine-rss-feeds/internal/fetch"
-	"github.com/kotaoue/combine-rss-feeds/internal/parse"
+	"github.com/kotaoue/combine-rss-feeds/internal/builder"
+	"github.com/kotaoue/combine-rss-feeds/internal/fetcher"
+	"github.com/kotaoue/combine-rss-feeds/internal/parser"
 )
 
 func main() {
@@ -50,9 +50,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	var allItems []parse.Item
+	var allItems []parser.Item
 	for _, u := range feedURLs {
-		items, err := fetch.Feed(u, limit)
+		items, err := fetcher.Feed(u, limit)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: %v\n", err)
 			continue
@@ -60,9 +60,9 @@ func main() {
 		allItems = append(allItems, items...)
 	}
 
-	build.SortItems(allItems)
+	builder.SortItems(allItems)
 
-	feed := build.RSS(feedTitle, feedDesc, allItems)
+	feed := builder.RSS(feedTitle, feedDesc, allItems)
 
 	out, err := xml.MarshalIndent(feed, "", "  ")
 	if err != nil {
