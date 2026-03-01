@@ -93,9 +93,9 @@ func hostname(rawURL string) string {
 	return u.Host
 }
 
-// Parse parses raw feed bytes (RSS 2.0 or Atom) and returns up to limit Items.
+// Parse parses raw feed bytes (RSS 2.0 or Atom) and returns all Items.
 // feedURL is used to derive the source hostname prefix for each entry title.
-func Parse(data []byte, feedURL string, limit int) ([]Item, error) {
+func Parse(data []byte, feedURL string) ([]Item, error) {
 	type probe struct {
 		XMLName xml.Name
 	}
@@ -108,25 +108,22 @@ func Parse(data []byte, feedURL string, limit int) ([]Item, error) {
 
 	switch strings.ToLower(p.XMLName.Local) {
 	case "feed":
-		return parseAtom(data, host, limit)
+		return parseAtom(data, host)
 	case "rss":
-		return parseRSS(data, host, limit)
+		return parseRSS(data, host)
 	default:
 		return nil, fmt.Errorf("unknown feed root element: %s", p.XMLName.Local)
 	}
 }
 
-func parseAtom(data []byte, host string, limit int) ([]Item, error) {
+func parseAtom(data []byte, host string) ([]Item, error) {
 	var f atomFeed
 	if err := xml.Unmarshal(data, &f); err != nil {
 		return nil, err
 	}
 
 	var items []Item
-	for i, e := range f.Entries {
-		if limit > 0 && i >= limit {
-			break
-		}
+	for _, e := range f.Entries {
 		link := ""
 		for _, l := range e.Links {
 			if l.Rel == "alternate" || l.Rel == "" {
@@ -148,17 +145,14 @@ func parseAtom(data []byte, host string, limit int) ([]Item, error) {
 	return items, nil
 }
 
-func parseRSS(data []byte, host string, limit int) ([]Item, error) {
+func parseRSS(data []byte, host string) ([]Item, error) {
 	var f rssInput
 	if err := xml.Unmarshal(data, &f); err != nil {
 		return nil, err
 	}
 
 	var items []Item
-	for i, it := range f.Channel.Items {
-		if limit > 0 && i >= limit {
-			break
-		}
+	for _, it := range f.Channel.Items {
 		desc := it.Description
 		if desc == "" {
 			desc = it.Content

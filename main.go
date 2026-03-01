@@ -56,7 +56,7 @@ func Main() error {
 
 	var allItems []feed.Item
 	for _, u := range feedURLs {
-		items, err := feed.Fetch(u, limit)
+		items, err := feed.Fetch(u)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: %v\n", err)
 			continue
@@ -65,6 +65,10 @@ func Main() error {
 	}
 
 	feed.SortItems(allItems)
+
+	if limit > 0 && len(allItems) > limit {
+		allItems = allItems[:limit]
+	}
 
 	rssFeed := feed.RSS(feedTitle, feedDesc, allItems)
 
