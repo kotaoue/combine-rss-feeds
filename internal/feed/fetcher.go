@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// Fetch fetches feedURL and returns up to limit parsed items.
-func Fetch(feedURL string, limit int) ([]Item, error) {
+// Fetch fetches feedURL and returns all parsed items.
+func Fetch(feedURL string) ([]Item, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -29,7 +29,7 @@ func Fetch(feedURL string, limit int) ([]Item, error) {
 		return nil, fmt.Errorf("read body %s: %w", feedURL, err)
 	}
 
-	items, err := Parse(body, feedURL, limit)
+	items, err := Parse(body, feedURL)
 	if err != nil {
 		return nil, fmt.Errorf("parse %s: %w", feedURL, err)
 	}

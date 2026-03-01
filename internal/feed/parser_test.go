@@ -88,7 +88,7 @@ var sampleAtom = `<?xml version="1.0" encoding="UTF-8"?>
 </feed>`
 
 func TestFeedRSS(t *testing.T) {
-	items, err := Parse([]byte(sampleRSS), "https://example.com/feed", 10)
+	items, err := Parse([]byte(sampleRSS), "https://example.com/feed")
 	if err != nil {
 		t.Fatalf("Parse RSS: %v", err)
 	}
@@ -103,18 +103,8 @@ func TestFeedRSS(t *testing.T) {
 	}
 }
 
-func TestFeedRSSLimit(t *testing.T) {
-	items, err := Parse([]byte(sampleRSS), "https://example.com/feed", 2)
-	if err != nil {
-		t.Fatalf("Parse RSS limit: %v", err)
-	}
-	if len(items) != 2 {
-		t.Fatalf("expected 2 items (limit), got %d", len(items))
-	}
-}
-
 func TestFeedAtom(t *testing.T) {
-	items, err := Parse([]byte(sampleAtom), "https://atom.example.com/feed", 10)
+	items, err := Parse([]byte(sampleAtom), "https://atom.example.com/feed")
 	if err != nil {
 		t.Fatalf("Parse Atom: %v", err)
 	}

@@ -45,6 +45,37 @@ func TestRSSXMLMarshal(t *testing.T) {
 	}
 }
 
+func TestSortItemsAndLimit(t *testing.T) {
+	// Simulate combining items from multiple feeds then applying a global limit.
+	items := []Item{
+		{Title: "A1", PubDate: time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC)},
+		{Title: "A2", PubDate: time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)},
+		{Title: "B1", PubDate: time.Date(2024, 1, 6, 0, 0, 0, 0, time.UTC)},
+		{Title: "B2", PubDate: time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)},
+		{Title: "C1", PubDate: time.Date(2024, 1, 4, 0, 0, 0, 0, time.UTC)},
+	}
+
+	SortItems(items)
+
+	limit := 3
+	if len(items) > limit {
+		items = items[:limit]
+	}
+
+	if len(items) != 3 {
+		t.Fatalf("expected 3 items after limit, got %d", len(items))
+	}
+	if items[0].Title != "B1" {
+		t.Errorf("expected B1 first (newest), got %q", items[0].Title)
+	}
+	if items[1].Title != "A1" {
+		t.Errorf("expected A1 second, got %q", items[1].Title)
+	}
+	if items[2].Title != "C1" {
+		t.Errorf("expected C1 third, got %q", items[2].Title)
+	}
+}
+
 func TestSortItems(t *testing.T) {
 	items := []Item{
 		{Title: "Old", PubDate: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)},
