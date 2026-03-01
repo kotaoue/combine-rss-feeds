@@ -1,0 +1,28 @@
+name: Update major version tag
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    if: "!github.event.release.prerelease"
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update major version tag
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -e
+          MAJOR=$(echo "$TAG" | grep -oE '^v[0-9]+')
+          if [ -z "$MAJOR" ]; then
+            echo "::error::Could not extract major version from tag: $TAG"
+            exit 1
+          fi
+          git tag -f "$MAJOR"
+          git push origin "$MAJOR" --force
