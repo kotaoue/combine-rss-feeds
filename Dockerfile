@@ -5,6 +5,7 @@ WORKDIR /app
 
 COPY go.mod ./
 COPY *.go ./
+COPY internal/ ./internal/
 
 RUN go build -o combine-rss-feeds .
 
