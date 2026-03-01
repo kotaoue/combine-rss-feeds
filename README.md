@@ -16,6 +16,20 @@ A GitHub Action that fetches entries from multiple RSS/Atom feeds and combines t
 - Each entry is tagged with the **source hostname** in its title
 - Pure Go implementation — **no external dependencies**
 
+## Versioning
+
+You can pin to a **major version** (automatically updated to the latest patch release):
+
+```yaml
+uses: kotaoue/combine-rss-feeds@v1
+```
+
+Or pin to a **specific version** for full reproducibility:
+
+```yaml
+uses: kotaoue/combine-rss-feeds@v1.0.1
+```
+
 ## Usage
 
 ```yaml
